@@ -23,14 +23,49 @@ class CML_UI:
         # choice = questionary.select("What would you like to do?", choices=["Create", "Edit", "Delete", "View", "Exit"]).ask()
 
         while True:
+            # print a blank line for better readability
+            print("\n")
+            choice = questionary.select("What would you like to do?", choices=["Create Habit", "Check a Habit", "Delete", "List Habits", "Check a Habit", "Exit"]).ask()
 
-            choice = questionary.select("What would you like to do?", choices=["Create Task", "Edit", "Delete", "View", "Check a Habit", "Exit"]).ask()
-            
             if choice == "Create Task":
                 name = questionary.text("Enter the name of the habit:").ask()
                 periodicity = questionary.select("Select the periodicity:", choices=["Daily", "Weekly", "Monthly"]).ask()
                 # Assuming the periodicity is stored as an integer ID in the database
                 db.add_habit(name, periodicity)
+
+            elif choice == "Check a Habit":
+                habits = db.get_habit_data()
+                habit_names = []
+                for habit in habits:
+                    # append habit names to a list named habit_names
+                    habit_names.append(habit[1])
+                selected_habit = questionary.select("Select a habit to edit:", choices=habit_names).ask()
+                print(f"You selected: {selected_habit}")
+                db.check_habit(selected_habit)
+
+            elif choice == "List Habits":
+                list_choice = questionary.select("Please select an option", choices=["View All Habits", "View All Habits Same Period"]).ask()
+                habits = db.get_all_habits()
+
+                if list_choice == "View All Habits":
+                    for habit in habits:
+                        # print(f"ID: {habit[0]}, Name: {habit[1]}, Periodicity: {habit[2]}")
+                        print(f"Name: {habit[1]}")
+                elif list_choice == "View All Habits Same Period":
+                    periodicity_choice = questionary.select("Select a periodicity:", choices=["Daily", "Weekly", "Monthly"]).ask()
+                    if periodicity_choice == "Daily":
+                        daily_habits = db.get_habits_by_period("Daily")
+                        # print("Daily Habits:")
+                        for habit in daily_habits:
+                            print(f"Name: {habit[1]}")
+                    elif periodicity_choice == "Weekly":
+                        weekly_habits = db.get_habits_by_period("Weekly")
+                        for habit in weekly_habits:
+                            print(f"Name: {habit[1]}")
+                    elif periodicity_choice == "Monthly":
+                        monthly_habits = db.get_habits_by_period("Monthly")
+                        for habit in monthly_habits:
+                            print(f"Name: {habit[1]}")
 
             elif choice == "Edit":
                 # habit_to_change = questionary.select("Select a habit to edit:", choices=db.get_all_habits()).ask()
@@ -59,11 +94,6 @@ class CML_UI:
             
             elif choice == "Delete":
                 pass
-            elif choice == "View":
-                habits = db.get_all_habits()
-                print("Your Habits:")
-                for habit in habits:
-                    print(f"ID: {habit[0]}, Name: {habit[1]}, Periodicity: {habit[2]}")
             elif choice == "Exit":
                 print("Exiting the Track A Habit. Goodbye!")
                 break

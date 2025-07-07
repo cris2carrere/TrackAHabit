@@ -99,23 +99,37 @@ class DB_Habit_Connection:
         """
         self.cursor.execute('SELECT * FROM Habit_Plan')
         habits = self.cursor.fetchall()
-        for habit in habits:
+        #for habit in habits:
             # Fetch the periodicity name for each habit
-            self.cursor.execute('SELECT Periodicity_Name FROM Periodicity WHERE PeriodicityID = ?', (habit[2],))
-            periodicity_name = self.cursor.fetchone()
-            if periodicity_name:
-                print(f"Habit: {habit[1]}, Periodicity: {periodicity_name[0]}")
+            # self.cursor.execute('SELECT Periodicity_Name FROM Periodicity WHERE PeriodicityID = ?', (habit[2],))
+            # periodicity_name = self.cursor.fetchone()
+            # if periodicity_name:
+            #    print(f"Habit: {habit[1]}, Periodicity: {periodicity_name[0]}")
 
-        return self.cursor.fetchall()
+        return habits
+
+    def get_habits_by_period(self, periodicity):
+        """
+        Retrieve all habits from the database.
+        :return: List of all habits
+        """
+        self.cursor.execute('SELECT * FROM Habit_Plan WHERE PeriodicityID = (SELECT PeriodicityID FROM Periodicity WHERE Periodicity_Name = ?)', (periodicity,))
+        habits = self.cursor.fetchall()
+        return habits
+        #for habit in habits:
+            # Fetch the periodicity name for each habit
+            # self.cursor.execute('SELECT Periodicity_Name FROM Periodicity WHERE PeriodicityID = ?', (habit[2],))
+            # periodicity_name = self.cursor.fetchone()
+            # if periodicity_name:
+            #    print(f"Habit: {habit[1]}, Periodicity: {periodicity_name[0]}")
 
     def check_habit(self, habit_name):
         habit_data = self.cursor.execute('SELECT HabitID FROM Habit_Plan WHERE Name = ?', (habit_name,))
-        habit_id = habit_data.fetchone()
-        print(habit_id)
-
+        # fetch only habit_id from the Habit_Plan table
+        habit_id = habit_data.fetchone()[0]
         self.cursor.execute('INSERT INTO Habit_Tracker (HabitID) VALUES (?)', (habit_id,))
+        self.conn.commit()
 
-    
     def delete_habit(self, habit_id):
         """
         Delete a habit from the database by its ID.
