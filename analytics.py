@@ -1,48 +1,34 @@
-from db import get_habit_data
+from db import DB_Habit_Connection
 
 
-def calculate_average_streak(habit_data):
-    """
-    Calculate the average streak of completed habits.
-    
-    :param habit_data: List of tuples containing habit data.
-    :return: Average streak of completed habits.
-    """
-    total_streak = 0
-    count = 0
+def list_all_tracked_habits(habits):
+    """"
+    List all tracked habits from the database.
+    :param habits: List of all habits"""
+    for habit in habits:
+        print(f"Name: {habit[1]}")
 
-    for habit in habit_data:
-        completed_days = habit[4]  # Assuming completed_days is at index 4
-        if completed_days:
-            streak = len(completed_days.split(','))
-            total_streak += streak
-            count += 1
 
-    return total_streak / count if count > 0 else 0
+def list_habits_by_periodicity(db, periodicity):
+    db.cursor.execute('SELECT * FROM Habit_Plan WHERE PeriodicityID = (SELECT PeriodicityID FROM Periodicity WHERE Periodicity_Name = ?)', (periodicity,))
+    habits = db.cursor.fetchall()
+    for habit in habits:
+        print(f"Name: {habit[1]}")
 
-def longest_run_streak(habit_data):
-    """
-    Calculate the longest run streak of completed habits.
-    
-    :param habit_data: List of tuples containing habit data.
-    :return: Longest run streak of completed habits.
-    """
-    longest_streak = 0
 
-    for habit in habit_data:
-        completed_days = habit[4]  # Assuming completed_days is at index 4
-        if completed_days:
-            streak = len(completed_days.split(','))
-            if streak > longest_streak:
-                longest_streak = streak
+def longest_run_streak_for_all_habits(db):
+    habits = db.get_all_habits()
+    print("Longest run streak for all habits:")
+    # Loop through each habits and calculate the longest run for each habit
+    def longest_run_streak(db, habit_name):
+        
 
-    return longest_streak
 
-def longest_run_for_all_habits():
-    """
-    Calculate the longest run streak for all habits.
-    
-    :return: Longest run streak for all habits.
-    """
-    habit_data = get_habit_data()
-    return longest_run_streak(habit_data)
+
+    for habit in habits:
+        longest_streak = longest_run_streak(db, habit[1])
+        print(f"Longest run streak for {habit[1]}: {longest_streak} days")
+
+
+def longest_run_streak_habit(db):
+    pass

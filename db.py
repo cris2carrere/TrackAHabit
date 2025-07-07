@@ -2,6 +2,7 @@ import sqlite3
 import datetime
 import os
 
+
 class DB_Habit_Connection:
     """
     Database connection class for managing habits.
@@ -39,14 +40,12 @@ class DB_Habit_Connection:
         self.cursor.execute('SELECT COUNT(*) FROM Periodicity')
         count = self.cursor.fetchone()[0]
         if count > 0:
-            print("Periodicity table already has data.")
+            pass
         else:
-            print("Inserting predefined periodicity data into the Periodicity table.")
             frequency = ['Daily', 'Weekly', 'Monthly']
             # Prepare data for insertion
             # Using a list comprehension to create a list of tuples for each frequency
             frequency_data = [(f,) for f in frequency]
-            print(frequency_data)
             self.cursor.executemany("INSERT INTO Periodicity (Periodicity_Name) VALUES (?)", frequency_data)
             self.cursor.connection.commit()
 
@@ -99,19 +98,13 @@ class DB_Habit_Connection:
         """
         self.cursor.execute('SELECT * FROM Habit_Plan')
         habits = self.cursor.fetchall()
-        #for habit in habits:
-            # Fetch the periodicity name for each habit
-            # self.cursor.execute('SELECT Periodicity_Name FROM Periodicity WHERE PeriodicityID = ?', (habit[2],))
-            # periodicity_name = self.cursor.fetchone()
-            # if periodicity_name:
-            #    print(f"Habit: {habit[1]}, Periodicity: {periodicity_name[0]}")
-
         return habits
 
     def get_habits_by_period(self, periodicity):
         """
         Retrieve all habits from the database.
-        :return: List of all habits
+        :param periodicity: Periodicity of the habit (e.g., Daily, Weekly,
+        :return: List of all habits by selected periodicity
         """
         self.cursor.execute('SELECT * FROM Habit_Plan WHERE PeriodicityID = (SELECT PeriodicityID FROM Periodicity WHERE Periodicity_Name = ?)', (periodicity,))
         habits = self.cursor.fetchall()
