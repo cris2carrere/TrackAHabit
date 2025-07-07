@@ -24,9 +24,9 @@ class CML_UI:
 
         while True:
 
-            choice = questionary.select("What would you like to do?", choices=["Create", "Edit", "Delete", "View", "Check a Habit", "Exit"]).ask()
+            choice = questionary.select("What would you like to do?", choices=["Create Task", "Edit", "Delete", "View", "Check a Habit", "Exit"]).ask()
             
-            if choice == "Create":
+            if choice == "Create Task":
                 name = questionary.text("Enter the name of the habit:").ask()
                 periodicity = questionary.select("Select the periodicity:", choices=["Daily", "Weekly", "Monthly"]).ask()
                 # Assuming the periodicity is stored as an integer ID in the database
@@ -52,6 +52,7 @@ class CML_UI:
                     habit_names.append(habit[1])
                 selected_habit = questionary.select("Select a habit to edit:", choices=habit_names).ask()
                 print(f"You selected: {selected_habit}")
+
 
                 db.check_habit(selected_habit)
 
