@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/cristiancarrere/Desktop/Documentos/Universidad/Object Oriented and Functional Programming with Python/tick_a_habit/venv"
+set -gx VIRTUAL_ENV "/Users/cristiancarrere/Desktop/Documentos/Universidad/Object Oriented and Functional Programming with Python/track_a_habit/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

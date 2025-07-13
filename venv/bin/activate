@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/cristiancarrere/Desktop/Documentos/Universidad/Object Oriented and Functional Programming with Python/tick_a_habit/venv"
+VIRTUAL_ENV="/Users/cristiancarrere/Desktop/Documentos/Universidad/Object Oriented and Functional Programming with Python/track_a_habit/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
