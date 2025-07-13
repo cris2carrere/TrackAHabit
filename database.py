@@ -10,8 +10,6 @@ def get_db_connection(name='habits.db'):
     """
     db = sqlite3.connect(name)
     db.execute("PRAGMA foreign_keys = ON")
-    initialize_tables(db)
-    insert_periodicity(db)
     return db
 
 
@@ -41,6 +39,9 @@ def initialize_tables(db):
         FOREIGN KEY (HabitID) REFERENCES Habit_Plan(ID))''')
     db.commit()
 
+    insert_periodicity(db)
+    db.close()
+
 
 def insert_periodicity(db):
     cursor = db.cursor()
@@ -61,6 +62,7 @@ def insert_habit(db, name, description, periodicity):
     :param periodicity: habit periodicity
     """
     # Fetch the periodicity ID from the database
+    db = get_db_connection()
     periodicity_id_from_db = db.execute('''SELECT ID FROM Periodicity WHERE Name = ?''', (periodicity,)).fetchone()  # NOQA: E501
 
     created_at = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
@@ -71,6 +73,7 @@ def insert_habit(db, name, description, periodicity):
         print(f"Habit '{name}' added to the database with periodicity '{periodicity}'.")  # NOQA: E501
     except sqlite3.IntegrityError:
         print(f"Habit '{name}' already exists in the database. Please choose a different name.")  # NOQA: E501
+    db.close()
 
 
 def get_all_habits(db):
@@ -78,8 +81,11 @@ def get_all_habits(db):
     Retrieve all habits from the database.
     :return: List of all habits
     """
+    db = get_db_connection()
     cursor = db.cursor()
-    return cursor.execute('SELECT * FROM Habit_Plan').fetchall()
+    selected_habit = cursor.execute('SELECT * FROM Habit_Plan').fetchall()
+    db.close()
+    return selected_habit
 
 
 def get_habits_by_period(db, periodicity):
@@ -88,8 +94,11 @@ def get_habits_by_period(db, periodicity):
     :param periodicity: Periodicity of the habit
     :return: List of all habits by selected periodicity
     """
+    db = get_db_connection()
     cursor = db.cursor()
-    return cursor.execute('SELECT * FROM Habit_Plan WHERE PeriodicityID = (SELECT ID FROM Periodicity WHERE Name = ?)', (periodicity,)).fetchall()  # NOQA: E501
+    habits_by_period = cursor.execute('SELECT * FROM Habit_Plan WHERE PeriodicityID = (SELECT ID FROM Periodicity WHERE Name = ?)', (periodicity,)).fetchall()  # NOQA: E501
+    db.close()
+    return habits_by_period
 
 
 def check_habit(db, habit_name):
@@ -98,12 +107,14 @@ def check_habit(db, habit_name):
     :param habit_name: Name of the habit to check
     """
     # Fetch the habit ID from the Habit_Plan table
+    db = get_db_connection()
     cursor = db.cursor()
     habit_id = cursor.execute('SELECT ID FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]  # NOQA: E501
 
     # Insert record into Habit_Tracker table
     cursor.execute('INSERT INTO Habit_Tracker (HabitID) VALUES (?)', (habit_id,))  # NOQA: E501
     db.commit()
+    db.close()
 
 
 def get_habit_creation_date(db, habit_name):
@@ -113,9 +124,11 @@ def get_habit_creation_date(db, habit_name):
     :param habit_name: habit name
     :return: datetime of habit creation date
     """
+    db = get_db_connection()
     cursor = db.cursor()
     created_at = cursor.execute('SELECT CreatedAt FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]  # NOQA: E501
-    return datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S').date()  # NOQA: E501
+    creation_date = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S').date()  # NOQA: E501
+    return creation_date
 
 
 def get_habit_periodicity(db, habit_name):
@@ -125,8 +138,10 @@ def get_habit_periodicity(db, habit_name):
     :param habit_name: Name of the habit to get periodicity for
     :return: Periodicity of the habit
     """
+    db = get_db_connection()
     cursor = db.cursor()
     periodicity = cursor.execute('SELECT PeriodicityID FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]  # NOQA: E501
+    db.close()
     return periodicity
 
 
@@ -137,6 +152,9 @@ def get_tracked_habit(db, habit_name):
     :param habit_id: ID of the habit to retrieve
     :return: Habit details
     """
+    db = get_db_connection()
     cursor = db.cursor()
     habit_id = cursor.execute('SELECT ID FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]  # NOQA: E501
-    return cursor.execute('SELECT * FROM Habit_Tracker WHERE HabitID = ? ORDER BY CompletedAt ASC', (habit_id,)).fetchall()  # NOQA: E501
+    get_habit = cursor.execute('SELECT * FROM Habit_Tracker WHERE HabitID = ? ORDER BY CompletedAt ASC', (habit_id,)).fetchall()  # NOQA: E501
+    db.close()
+    return get_habit

@@ -4,7 +4,8 @@ from database import (
     get_habits_by_period,
     get_habit_creation_date,
     get_tracked_habit,
-    get_habit_periodicity
+    get_habit_periodicity,
+    get_db_connection,
 )
 
 
@@ -31,7 +32,7 @@ def longest_run_streak_habit(db, selected_habit):
     previous_date = get_habit_creation_date(db, selected_habit)
 
     for record in habit_records:
-        checked_at = datetime.datetime.strptime(record[2], '%Y-%m-%d %H:%M:%S').date()
+        checked_at = datetime.datetime.strptime(record[2], '%Y-%m-%d %H:%M:%S').date()  # NOQA: E
 
         if periodicity == 1:
             condition = is_next_day(checked_at, previous_date)
@@ -52,12 +53,11 @@ def longest_run_streak_habit(db, selected_habit):
 
         previous_date = checked_at
 
-    #print(f"{selected_habit} current streak: {current_streak}, Longest streak: {longest_streak}")  # NOQA: E501
     return longest_streak, current_streak
 
 
 def is_next_day(checked_at, previous_date):
-    if checked_at == previous_date + datetime.timedelta(days=1) or checked_at == previous_date:
+    if checked_at == previous_date + datetime.timedelta(days=1) or checked_at == previous_date:  # NOQA: E
         return True
     else:
         return False
@@ -67,7 +67,7 @@ def is_next_week(checked_at, previous_date):
     year1, week1, _ = previous_date.isocalendar()
     year2, week2, _ = checked_at.isocalendar()
 
-    # Get the last ISO week of year1 (by using Dec 28, which is always in the last ISO week)
+    # Get the last ISO week of year1, Dec 28 always last week
     last_week1 = datetime.date(year1, 12, 28).isocalendar()[1]
 
     # Check if date2 is in the next ISO week after date1
@@ -82,4 +82,4 @@ def is_next_month(checked_at, previous_date):
     year_delta = checked_at.year - previous_date.year
     month_delta = checked_at.month - previous_date.month
 
-    return (year_delta == 0 and month_delta == 1) or (year_delta == 1 and previous_date.month == 12 and checked_at.month == 1)  
+    return (year_delta == 0 and month_delta == 1) or (year_delta == 1 and previous_date.month == 12 and checked_at.month == 1)  # NOQA: E
