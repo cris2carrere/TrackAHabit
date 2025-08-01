@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 def get_db_connection(name='habits.db'):
@@ -14,7 +14,10 @@ def get_db_connection(name='habits.db'):
 
 
 def initialize_tables(db):
-    # Create Periodicity table
+    """
+    Initialize the database tables if they do not exist.
+    :param db: Database connection
+    """
     cursor = db.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS Periodicity (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,6 +47,11 @@ def initialize_tables(db):
 
 
 def insert_periodicity(db):
+    """
+    Insert predefined periodicity values into the Periodicity table if not
+    already present.
+    :param db: Database connection
+    """
     cursor = db.cursor()
     if cursor.execute('SELECT COUNT(*) FROM Periodicity').fetchone()[0] > 0:
         pass
@@ -70,7 +78,6 @@ def insert_habit(db, name, description, periodicity):
     try:
         db.execute('''INSERT INTO Habit_Plan (Name, PeriodicityID, Description, CreatedAt) VALUES (?, ?, ?, ?)''', (name, periodicity_id_from_db[0], description, created_at))  # NOQA: E501
         db.commit()
-        print(f"Habit '{name}' added to the database with periodicity '{periodicity}'.")  # NOQA: E501
     except sqlite3.IntegrityError:
         print(f"Habit '{name}' already exists in the database. Please choose a different name.")  # NOQA: E501
     db.close()
@@ -127,6 +134,7 @@ def get_habit_creation_date(db, habit_name):
     db = get_db_connection()
     cursor = db.cursor()
     created_at = cursor.execute('SELECT CreatedAt FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]  # NOQA: E501
+    db.close()
     creation_date = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S').date()  # NOQA: E501
     return creation_date
 

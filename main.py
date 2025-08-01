@@ -1,16 +1,16 @@
 import questionary
-from habits import Habit
+from analytics import (
+    list_all_tracked_habits,
+    list_habits_by_periodicity,
+    get_habit_analytics
+)
 from database import (
     get_db_connection,
     get_all_habits,
     check_habit,
     initialize_tables,
 )
-from analytics import (
-    list_all_tracked_habits,
-    list_habits_by_periodicity,
-    longest_run_streak_habit,
-)
+from habits import Habit
 
 
 def cli_ui():
@@ -52,7 +52,6 @@ def cli_ui():
             periodicity = questionary.select("Select the periodicity:", choices=periodicity_options).ask()  # NOQA: E
 
             habit = Habit(name, description, periodicity)
-
             habit.add_habit(db)
 
         elif choice == "Check a Habit":
@@ -60,7 +59,7 @@ def cli_ui():
 
             if len(habits) == 0:
                 print("There aren't any habits to check, please create one habit first")  # NOQA: E
-                questionary.text("Press Enter to continue...").ask()
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
             else:
                 habit_names = []
@@ -69,7 +68,6 @@ def cli_ui():
                     habit_names.append(habit[1])
 
                 selected_habit = questionary.select("Complete habit:", choices=habit_names).ask()  # NOQA: E
-
                 check_habit(db, selected_habit)
 
         elif choice == "List Habits":
@@ -77,14 +75,13 @@ def cli_ui():
 
             if list_choice == "View All Habits":
                 habits = list_all_tracked_habits(db)
-
                 print("\nList of every habit:\n")
 
                 for habit in habits:
-                    print(f"Name: # {habit[1]}")
+                    print(f"Habit: {habit[1]}")
                 print("\n")
 
-                questionary.text("Press Enter to continue...").ask()
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
             elif list_choice == "View All Habits Same Period":
                 periodicity_choice = questionary.select("Select a periodicity:", choices=periodicity_options).ask()  # NOQA: E
@@ -94,10 +91,10 @@ def cli_ui():
                 print("\nList of every habit:\n")
 
                 for habit in habits_by_period:
-                    print(f"Name: # {habit[1]}")
+                    print(f"Habit: {habit[1]}")
                 print("\n")
 
-                questionary.text("Press Enter to continue...").ask()
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
         elif choice == "Analyze Habits":
             analyze_options = [
@@ -111,29 +108,41 @@ def cli_ui():
             if analyze_choice == "Longest Streak For All Habits":
                 habits = get_all_habits(db)
 
-                habits_longest_run = []
-
+                # habits_longest_run = []
+                # TODO: cuando corre longest run streak, no calcula bien el break streak, si es weekly aun asi imprime el daily.
                 for habit in habits:
-                    longest_run, current_run = longest_run_streak_habit(db, habit[1])  # NOQA: E
-                    habits_longest_run.append((habit[1], longest_run, current_run))  # NOQA: E
-                    print(f"{habit[1]} longest run is: {longest_run}, current run is: {current_run}")  # NOQA: E
+                    #longest_run, current_run, _ = get_habit_analytics(db, habit[1])  # NOQA: E
+                    # longest_run, current_run, break_habit = track_habit_completions(db, habit[1])  # NOQA: E
+                    # habits_longest_run.append((habit[1], longest_run, current_run))  # NOQA: E
+                    # print(f"{habit[1]} longest run is: {longest_run}, current run is: {current_run}")  # NOQA: E
+                    longest_run, current_run, break_habit = get_habit_analytics(db, habit[1])
+                    print(f"{habit[1]} longest run is: {longest_run}, current run is: {current_run}, breaks: {break_habit}")  # NOQA: E
 
-                questionary.text("Press Enter to continue...").ask()
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
             elif analyze_choice == "Longest Run For A Habit":
                 habits = get_all_habits(db)
 
                 if len(habits) == 0:
-                    print("There aren't any habits to check, please create one habit first")  # NOQA: E
+                    print("There aren't any habits to analyze, please create one habit first")  # NOQA: E
                     questionary.text("Press Enter to continue...").ask()
                 else:
                     selected_habit = questionary.select("Select a habit:", choices=[habit[1] for habit in habits]).ask()  # NOQA: E
-                    longest_streak, current_streak = longest_run_streak_habit(db, selected_habit)  # NOQA: E
+                    #longest_streak, current_streak, _ = track_habit_completions(db, selected_habit)  # NOQA: E
+                    longest_run, current_run, break_habit = get_habit_analytics(db,selected_habit)
+                    print(f"{selected_habit} longest run streak is: {longest_run} days, your current streak is: {current_run}")  # NOQA: E
 
-                    print(f"{selected_habit} longest run streak is: {longest_streak} days, your current streak is: {current_streak}")  # NOQA: E
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
             elif analyze_choice == "Habit struggle analysis":
-                pass
+                habits = get_all_habits(db)
+
+                for habit in habits:
+                    # _, _, break_habit = track_habit_completions(db, habit[1])
+                    _, _, break_habit = get_habit_analytics(db,habit[1])  # NOQA: E
+                    print(f"Total breaks for {habit[1]} habit streaks: {break_habit}")  # NOQA: E
+
+                questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
         elif choice == "Exit Application":
             print("Exiting the Track A Habit. Goodbye!")
