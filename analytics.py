@@ -97,28 +97,28 @@ def track_habit_completions(db, habit_information):
 def get_habit_analytics(db, selected_habit):
     habit_records = get_tracked_habit(db, selected_habit)
     periodicity = get_habit_periodicity(db, selected_habit)
+    #print(f"Selected habit: {selected_habit}, periodicity: {periodicity}")  # NOQA: E501
     today = datetime.datetime.now().date()
 
     longest_streak = 0
     current_streak = 0
     break_habit = 0
     previous_date = get_habit_creation_date(db, selected_habit)
-    
-    # Check if habit has record, if habit has 0 record it means it was created but never checked-offs
+
+    # Check if habit has records
+    # If habit has 0 record it means it was created but never checked-offs
     if len(habit_records) == 0:
-        return 0, 0, 0
+        periodicity_name = get_periodicity_name(periodicity)
+        return 0, 0, 0, periodicity_name  # NOQA: E501
     else:
-    
-    # Loop through the habit records to find the longest run streak
+        # Loop through the habit records to find the longest run streak
         while previous_date <= today:
             for record in habit_records:
                 checked_at = datetime.datetime.strptime(record[2], '%Y-%m-%d %H:%M:%S').date()  # NOQA: E
-                if periodicity == 1:
-                    condition = is_next_day(checked_at, previous_date)
-                elif periodicity == 2:
-                    condition = is_next_week(checked_at, previous_date)
-                else:
-                    condition = is_next_month(checked_at, previous_date)
+
+                # Check if the checked_at date is in the next period
+                # based on the habit periodicity
+                condition = is_next_period(checked_at, previous_date, periodicity)  # NOQA: E501
 
                 if condition is True:  # NOQA: E501
                     current_streak += 1
@@ -133,14 +133,37 @@ def get_habit_analytics(db, selected_habit):
 
                 previous_date = previous_date + datetime.timedelta(days=1)
 
-        return longest_streak, current_streak, break_habit
+        periodicity_name = get_periodicity_name(periodicity)
+        return longest_streak, current_streak, break_habit, periodicity_name
+
+
+def get_periodicity_name(periodicity):
+    if periodicity == 1:  # Daily
+        return "Days"
+    elif periodicity == 2:  # Weekly
+        return "Weeks"
+    elif periodicity == 3:  # Monthly
+        return "Months"
+
+
+def is_next_period(checked_at, previous_date, periodicity):
+    if periodicity == 1:  # Daily
+        return is_next_day(checked_at, previous_date)
+    elif periodicity == 2:  # Weekly
+        return is_next_week(checked_at, previous_date)
+    else:  # Monthly
+        return is_next_month(checked_at, previous_date)
 
 
 def is_next_day(checked_at, previous_date):
     """
-
+    Check if the checked_at date is the next day or the same day as
+    previous_date.
+    :param checked_at: The date when the habit was checked.
+    :param previous_date: The date of the last habit check.
+    :return: True if checked_at is the next day or the same day as
+    previous_date, False otherwise.
     """
-    #if checked_at == previous_date + datetime.timedelta(days=1) or checked_at == previous_date:  # NOQA: E
     if checked_at == previous_date:
         return True
     else:
