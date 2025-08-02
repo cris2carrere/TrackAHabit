@@ -99,14 +99,17 @@ def get_habit_analytics(db, selected_habit):
     periodicity = get_habit_periodicity(db, selected_habit)
     today = datetime.datetime.now().date()
 
-    # Loop through the habit records to find the longest run streak
     longest_streak = 0
     current_streak = 0
     break_habit = 0
     previous_date = get_habit_creation_date(db, selected_habit)
+    
+    # Check if habit has record, if habit has 0 record it means it was created but never checked-offs
     if len(habit_records) == 0:
         return 0, 0, 0
     else:
+    
+    # Loop through the habit records to find the longest run streak
         while previous_date <= today:
             for record in habit_records:
                 checked_at = datetime.datetime.strptime(record[2], '%Y-%m-%d %H:%M:%S').date()  # NOQA: E
@@ -134,6 +137,9 @@ def get_habit_analytics(db, selected_habit):
 
 
 def is_next_day(checked_at, previous_date):
+    """
+
+    """
     #if checked_at == previous_date + datetime.timedelta(days=1) or checked_at == previous_date:  # NOQA: E
     if checked_at == previous_date:
         return True

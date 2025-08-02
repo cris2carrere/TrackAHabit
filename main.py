@@ -108,13 +108,8 @@ def cli_ui():
             if analyze_choice == "Longest Streak For All Habits":
                 habits = get_all_habits(db)
 
-                # habits_longest_run = []
                 # TODO: cuando corre longest run streak, no calcula bien el break streak, si es weekly aun asi imprime el daily.
                 for habit in habits:
-                    #longest_run, current_run, _ = get_habit_analytics(db, habit[1])  # NOQA: E
-                    # longest_run, current_run, break_habit = track_habit_completions(db, habit[1])  # NOQA: E
-                    # habits_longest_run.append((habit[1], longest_run, current_run))  # NOQA: E
-                    # print(f"{habit[1]} longest run is: {longest_run}, current run is: {current_run}")  # NOQA: E
                     longest_run, current_run, break_habit = get_habit_analytics(db, habit[1])
                     print(f"{habit[1]} longest run is: {longest_run}, current run is: {current_run}, breaks: {break_habit}")  # NOQA: E
 
@@ -128,7 +123,6 @@ def cli_ui():
                     questionary.text("Press Enter to continue...").ask()
                 else:
                     selected_habit = questionary.select("Select a habit:", choices=[habit[1] for habit in habits]).ask()  # NOQA: E
-                    #longest_streak, current_streak, _ = track_habit_completions(db, selected_habit)  # NOQA: E
                     longest_run, current_run, break_habit = get_habit_analytics(db,selected_habit)
                     print(f"{selected_habit} longest run streak is: {longest_run} days, your current streak is: {current_run}")  # NOQA: E
 
