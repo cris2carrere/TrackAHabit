@@ -1,6 +1,4 @@
 import sqlite3
-import os
-from pathlib import Path
 from datetime import datetime
 
 
@@ -11,6 +9,7 @@ def get_db_connection(name='habits.db'):
     :return: db connection
     """
     db = sqlite3.connect(name)
+    # Enable foreign key support
     db.execute("PRAGMA foreign_keys = ON")
     return db
 
@@ -21,6 +20,7 @@ def initialize_tables(db):
     :param db: Database connection
     """
     cursor = db.cursor()
+
     cursor.execute('''CREATE TABLE IF NOT EXISTS Periodicity (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Name TEXT NOT NULL)''')
@@ -71,12 +71,17 @@ def insert_predefined_habits(db):
     if cursor.execute('SELECT COUNT(*) FROM Habit_Plan').fetchone()[0] > 0:
         pass
     else:
-        habits = [["Drink Water", "Drink Water Daily", "Daily"], ["Gym", "", "Weekly"]]
+        habits = [["Drink Water", "Drink Water Daily", "Daily"],
+                  ["Read a Book", "Read a book per month", "Monthly"],
+                  ["Exercise", "Exercise for 30 minutes daily", "Daily"],
+                  ["Healthy Eating", "Eat a balanced diet daily", "Daily"],
+                  ["Learn a Language", "Practice a new language weekly", "Weekly"]
+                  ]
         for habit in habits:
-            insert_habit(db, habit[0], habit[1], habit[2])
+            insert_habit(habit[0], habit[1], habit[2])
 
 
-def insert_habit(db, name, description, periodicity):
+def insert_habit(name, description, periodicity):
     """
     Add a new habit to the database.
     :param name: habit name
@@ -96,7 +101,7 @@ def insert_habit(db, name, description, periodicity):
     db.close()
 
 
-def get_all_habits(db):
+def get_all_habits():
     """
     Retrieve all habits from the database.
     :return: List of all habits
@@ -108,7 +113,7 @@ def get_all_habits(db):
     return selected_habit
 
 
-def get_habits_by_period(db, periodicity):
+def get_habits_by_period(periodicity):
     """
     Retrieve all habits from the database.
     :param periodicity: Periodicity of the habit
@@ -121,7 +126,7 @@ def get_habits_by_period(db, periodicity):
     return habits_by_period
 
 
-def check_habit(db, habit_name):
+def check_habit(habit_name):
     """
     Mark a habit as completed into the Habit_Tracker table
     :param habit_name: Name of the habit to check
@@ -137,10 +142,9 @@ def check_habit(db, habit_name):
     db.close()
 
 
-def get_habit_creation_date(db, habit_name):
+def get_habit_creation_date(habit_name):
     """
     Get habit creation date
-    :param db: Database connection
     :param habit_name: habit name
     :return: datetime of habit creation date
     """
@@ -152,10 +156,9 @@ def get_habit_creation_date(db, habit_name):
     return creation_date
 
 
-def get_habit_periodicity(db, habit_name):
+def get_habit_periodicity(habit_name):
     """
     Get the periodicity of a habit.
-    :param db: Database connection
     :param habit_name: Name of the habit to get periodicity for
     :return: Periodicity of the habit
     """
@@ -166,10 +169,9 @@ def get_habit_periodicity(db, habit_name):
     return periodicity
 
 
-def get_tracked_habit(db, habit_name):
+def get_tracked_habit(habit_name):
     """
     Get a tracked habit by its ID.
-    :param db: Database connection
     :param habit_id: ID of the habit to retrieve
     :return: Habit details
     """

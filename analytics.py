@@ -9,17 +9,17 @@ from database import (
 )
 
 
-def list_all_tracked_habits(db):
+def list_all_tracked_habits():
     """"
     List all tracked habits from the database.
     :param habits: List of all habits"""
-    return get_all_habits(db)
+    return get_all_habits()
 
 
-def list_habits_by_periodicity(db, periodicity):
+def list_habits_by_periodicity(periodicity):
     """"
     List habits by periodicity from the database."""
-    return get_habits_by_period(db, periodicity)
+    return get_habits_by_period(periodicity)
 
 
 def add_months(dt, months):
@@ -94,15 +94,15 @@ def get_expected_dates(start, end, frequency):
 #     db.close()
 
 
-def get_habit_analytics(db, selected_habit):
-    habit_records = get_tracked_habit(db, selected_habit)
-    periodicity = get_habit_periodicity(db, selected_habit)
+def get_habit_analytics(selected_habit):
+    habit_records = get_tracked_habit(selected_habit)
+    periodicity = get_habit_periodicity(selected_habit)
     today = datetime.datetime.now().date()
 
     longest_streak = 0
     current_streak = 0
     break_habit = 0
-    previous_date = get_habit_creation_date(db, selected_habit)
+    previous_date = get_habit_creation_date(selected_habit)
 
     # Check if habit has records
     # If habit has 0 record it means it was created but never checked-offs
@@ -190,12 +190,12 @@ def is_next_month(checked_at, previous_date):
     return (year_delta == 0 and month_delta == 1) or (year_delta == 1 and previous_date.month == 12 and checked_at.month == 1)  # NOQA: E
 
 
-def struggle_habit(db, habit_name):
+def struggle_habit(habit_name):
     db = get_db_connection()
     cursor = db.cursor()
     today = datetime.datetime.now().date()
-    creation_date = get_habit_creation_date(db, habit_name)
-    frequency = get_habit_periodicity(db, habit_name)
+    creation_date = get_habit_creation_date(habit_name)
+    frequency = get_habit_periodicity(habit_name)
     expected_dates = get_expected_dates(creation_date, today, frequency)
     habit_id = cursor.execute('SELECT ID FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]
     cursor.execute(
