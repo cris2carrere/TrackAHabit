@@ -1,4 +1,6 @@
 import sqlite3
+import os
+from pathlib import Path
 from datetime import datetime
 
 
@@ -43,6 +45,7 @@ def initialize_tables(db):
     db.commit()
 
     insert_periodicity(db)
+    insert_predefined_habits(db)
     db.close()
 
 
@@ -61,6 +64,16 @@ def insert_periodicity(db):
         frequency_data = [(f,) for f in frequency]
         cursor.executemany("INSERT INTO Periodicity (Name) VALUES (?)", frequency_data)  # NOQA: E501
         cursor.connection.commit()
+
+
+def insert_predefined_habits(db):
+    cursor = db.cursor()
+    if cursor.execute('SELECT COUNT(*) FROM Habit_Plan').fetchone()[0] > 0:
+        pass
+    else:
+        habits = [["Drink Water", "Drink Water Daily", "Daily"], ["Gym", "", "Weekly"]]
+        for habit in habits:
+            insert_habit(db, habit[0], habit[1], habit[2])
 
 
 def insert_habit(db, name, description, periodicity):

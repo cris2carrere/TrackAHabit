@@ -2,13 +2,14 @@ import questionary
 from analytics import (
     list_all_tracked_habits,
     list_habits_by_periodicity,
-    get_habit_analytics
+    get_habit_analytics,
+    struggle_habit
 )
 from database import (
     get_db_connection,
     get_all_habits,
     check_habit,
-    initialize_tables,
+    initialize_tables
 )
 from habits import Habit
 
@@ -20,6 +21,7 @@ def cli_ui():
     db = get_db_connection()
     initialize_tables(db)
 
+    # Define user options
     user_options = [
         "Create Habit",
         "Check a Habit",
@@ -28,12 +30,14 @@ def cli_ui():
         "Exit Application",
     ]
 
+    # Define Periodicity options
     periodicity_options = [
         "Daily",
         "Weekly",
         "Monthly"
     ]
 
+    # Define analyze options
     analyze_options = [
         "Longest Streak For All Habits",
         "Longest Run For A Habit",
@@ -41,6 +45,7 @@ def cli_ui():
     ]
 
     while True:
+
         choice = questionary.select("\nWhat would you like to do?",
                                     choices=user_options).ask()
 
@@ -113,7 +118,7 @@ def cli_ui():
                 habits = get_all_habits(db)
 
                 for habit in habits:
-                    longest_run, _, break_habit, period = get_habit_analytics(db, habit[1])  # NOQA: E
+                    longest_run, _, _, period = get_habit_analytics(db, habit[1])  # NOQA: E
                     print(f"{habit[1]} longest run is: {longest_run} consecutive {period}")  # NOQA: E
 
                 questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
@@ -124,10 +129,11 @@ def cli_ui():
                 if len(habits) == 0:
                     print("There aren't any habits to analyze, please create one habit first")  # NOQA: E
                     questionary.text("Press Enter to continue...").ask()
+
                 else:
                     selected_habit = questionary.select("Select a habit:", choices=[habit[1] for habit in habits]).ask()  # NOQA: E
-                    longest_run, current_run, break_habit = get_habit_analytics(db,selected_habit)  # NOQA: E
-                    print(f"{selected_habit} longest run streak is: {longest_run} days, your current streak is: {current_run}")  # NOQA: E
+                    longest_run, _, _, periodicity = get_habit_analytics(db,selected_habit)  # NOQA: E
+                    print(f"{selected_habit} longest run streak is {longest_run} consecutive {periodicity}")  # NOQA: E
 
                 questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 
@@ -135,9 +141,8 @@ def cli_ui():
                 habits = get_all_habits(db)
 
                 for habit in habits:
-                    # _, _, break_habit = track_habit_completions(db, habit[1])
-                    _, _, break_habit = get_habit_analytics(db,habit[1])  # NOQA: E
-                    print(f"Total breaks for {habit[1]} habit streaks: {break_habit}")  # NOQA: E
+                    total_break_habit, period = struggle_habit(db, habit[1])
+                    print(f"Total breaks for {habit[1]}: {total_break_habit}, period {period}")  # NOQA: E
 
                 questionary.text("Press Enter to continue...", qmark="###").ask()  # NOQA: E
 

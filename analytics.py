@@ -59,45 +59,44 @@ def get_expected_dates(start, end, frequency):
     return dates
 
 
-def track_habit_completions(db, habit_information):
-    print("In habit tracker completions function", habit_information)  # NOQA: E501
-    db = get_db_connection()
-    cursor = db.cursor()
-    today = datetime.datetime.now().date()
-    # habits = get_tracked_habit(db, habit_name)
-    print(f"Expected dates for habit '{habit_information[1]}':")
-    creation_date = get_habit_creation_date(db, habit_information)
-    frequency = get_habit_periodicity(db, habit_information)
-    expected_dates = get_expected_dates(creation_date, today, frequency)
-    print(expected_dates)
+# def track_habit_completions(db, habit_information):
+#     print("In habit tracker completions function", habit_information)  # NOQA: E501
+#     db = get_db_connection()
+#     cursor = db.cursor()
+#     today = datetime.datetime.now().date()
+#     # habits = get_tracked_habit(db, habit_name)
+#     print(f"Expected dates for habit '{habit_information[1]}':")
+#     creation_date = get_habit_creation_date(db, habit_information)
+#     frequency = get_habit_periodicity(db, habit_information)
+#     expected_dates = get_expected_dates(creation_date, today, frequency)
+#     print(expected_dates)
 
-    cursor.execute(
-        "SELECT CompletedAt FROM Habit_Tracker WHERE HabitID = ?",
-        (habit_information[0],)
-    )
-    completions = set(
-        datetime.datetime.fromisoformat(row[0]).date() for row in cursor.fetchall()  # NOQA: E501
-    )
+#     cursor.execute(
+#         "SELECT CompletedAt FROM Habit_Tracker WHERE HabitID = ?",
+#         (habit_information[0],)
+#     )
+#     completions = set(
+#         datetime.datetime.fromisoformat(row[0]).date() for row in cursor.fetchall()  # NOQA: E501
+#     )
 
-    if frequency == 1:
-        frequency_name = "Daily"
-    elif frequency == 2:
-        frequency_name = "Weekly"
-    elif frequency == 3:
-        frequency_name = "Monthly"
+#     if frequency == 1:
+#         frequency_name = "Daily"
+#     elif frequency == 2:
+#         frequency_name = "Weekly"
+#     elif frequency == 3:
+#         frequency_name = "Monthly"
 
-    print(f"\nHabit: {habit_information[1]} ({frequency_name})")
-    for date in expected_dates:
-        status = "✅" if date in completions else "❌"
-        print(f"{date}: {status}")
+#     print(f"\nHabit: {habit_information[1]} ({frequency_name})")
+#     for date in expected_dates:
+#         status = "✅" if date in completions else "❌"
+#         print(f"{date}: {status}")
 
-    db.close()
+#     db.close()
 
 
 def get_habit_analytics(db, selected_habit):
     habit_records = get_tracked_habit(db, selected_habit)
     periodicity = get_habit_periodicity(db, selected_habit)
-    #print(f"Selected habit: {selected_habit}, periodicity: {periodicity}")  # NOQA: E501
     today = datetime.datetime.now().date()
 
     longest_streak = 0
@@ -189,3 +188,31 @@ def is_next_month(checked_at, previous_date):
     year_delta = checked_at.year - previous_date.year
     month_delta = checked_at.month - previous_date.month
     return (year_delta == 0 and month_delta == 1) or (year_delta == 1 and previous_date.month == 12 and checked_at.month == 1)  # NOQA: E
+
+
+def struggle_habit(db, habit_name):
+    db = get_db_connection()
+    cursor = db.cursor()
+    today = datetime.datetime.now().date()
+    creation_date = get_habit_creation_date(db, habit_name)
+    frequency = get_habit_periodicity(db, habit_name)
+    expected_dates = get_expected_dates(creation_date, today, frequency)
+    habit_id = cursor.execute('SELECT ID FROM Habit_Plan WHERE Name = ?', (habit_name,)).fetchone()[0]
+    cursor.execute(
+        "SELECT CompletedAt FROM Habit_Tracker WHERE HabitID = ?",
+        (habit_id,)
+    )
+    completions = set(
+        datetime.datetime.fromisoformat(row[0]).date() for row in cursor.fetchall()  # NOQA: E501
+    )
+    break_habits_counter = 0
+
+    for date in expected_dates:
+        if date in completions:
+            pass
+        else:
+            break_habits_counter += 1
+
+    periodicity_name = get_periodicity_name(frequency)
+
+    return break_habits_counter, periodicity_name
