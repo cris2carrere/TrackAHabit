@@ -43,7 +43,7 @@ def cli_ui():
     analyze_options = [
         "Longest Streak For All Habits",
         "Longest Run For A Habit",
-        "Habit struggle analysis"
+        "Habit Struggle Analysis"
     ]
 
     list_options = [
@@ -187,7 +187,7 @@ def cli_ui():
 
                     questionary.text("Press Enter to continue...", qmark="#").ask()  # NOQA: E501
 
-            elif analyze_choice == "Habit struggle analysis":
+            elif analyze_choice == "Habit Struggle Analysis":
                 habits = get_all_habits(db)
 
                 if len(habits) == 0:

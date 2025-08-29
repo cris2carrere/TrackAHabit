@@ -1,4 +1,3 @@
 datetime
 pytest
-questionay
-sqlite3
+questionary
