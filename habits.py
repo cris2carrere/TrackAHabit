@@ -20,8 +20,7 @@ class Habit:
         Returns:
             bool: True if the habit was added successfully, False otherwise.
         """
-        insert_habit(db, self.name, self.description, self.periodicity, created_at)
-        return (self.name, self.description, self.periodicity)
+        return insert_habit(db, self.name, self.description, self.periodicity, created_at)  # NOQA: E501
 
     def checkoff_habit(self, db, checked_at=None):
         """

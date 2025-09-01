@@ -92,9 +92,13 @@ def insert_predefined_habits(db):
                   ["Learn a Language", "Practice language weekly", "Weekly"]]  # NOQA: E501
 
         # Define created_at as 4 weeks ago
-        created_at = (datetime.now() - timedelta(weeks=4)).strftime("%Y-%m-%d %H:%M:%S")
+        created_at = (datetime.now() - timedelta(weeks=4)).strftime("%Y-%m-%d %H:%M:%S")  # NOQA: E501
         for habit in habits:
-            cursor.execute('''INSERT INTO Habit_Default (Name, Description, PeriodicityID, CreatedAt) VALUES (?, ?, (SELECT ID FROM Periodicity WHERE Name = ?), ?)''', (habit[0], habit[1], habit[2], created_at))  # NOQA: E501
+            cursor.execute(
+                '''INSERT INTO Habit_Default (Name, Description, PeriodicityID, CreatedAt)
+                   VALUES (?, ?, (SELECT ID FROM Periodicity WHERE Name = ?), ?)''',  # NOQA: E501
+                (habit[0], habit[1], habit[2], created_at)
+            )
             db.commit()
 
 

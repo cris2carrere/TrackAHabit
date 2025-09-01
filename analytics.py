@@ -97,7 +97,7 @@ def get_habit_analytics(db, selected_habit):
     # Check if habit has records
     # If habit has 0 record it means it was created but never checked-offs
     if len(habit_records) == 0:
-        periodicity_name = get_periodicity_name(db, periodicity)
+        periodicity_name = get_periodicity_name(periodicity)
         return 0, periodicity_name  # NOQA: E501
     else:
         # Loop through the habit records to find the longest run streak
@@ -112,18 +112,19 @@ def get_habit_analytics(db, selected_habit):
 
                 # If the checked_at date is the next period, increment the
                 # current streak
-                if condition is True:  # NOQA: E501
+                if condition is True:
                     current_streak += 1
                 else:
                     longest_streak = max(longest_streak, current_streak)
                     break_habit += 1
-                    current_streak = 1  # Reset current streak
+                    # sets current_streak to 1 because the habit was
+                    # completed on checked_at date
+                    current_streak = 1
 
                 # Update the longest streak if current streak is greater
                 if longest_streak < current_streak:
                     longest_streak = current_streak
 
-                # previous_date = previous_date + datetime.timedelta(days=1)
                 previous_date = checked_at
                 start_date = start_date + datetime.timedelta(days=1)
 
@@ -137,11 +138,11 @@ def get_periodicity_name(periodicity):
     :param periodicity: The periodicity ID
     :return: The name of the periodicity.
     """
-    if periodicity == 1:  # Daily
+    if periodicity == 1:
         return "Days"
-    elif periodicity == 2:  # Weekly
+    elif periodicity == 2:
         return "Weeks"
-    elif periodicity == 3:  # Monthly
+    elif periodicity == 3:
         return "Months"
 
 
@@ -165,12 +166,11 @@ def is_next_period(checked_at, previous_date, periodicity):
 
 def is_next_day(checked_at, previous_date):
     """
-    Check if the checked_at date is the next day or the same day as
-    previous_date.
+    Check if the checked_at date is the next day as previous_date.
     :param checked_at: The date when the habit was checked.
     :param previous_date: The date of the last habit check.
-    :return: True if checked_at is the next day or the same day as
-    previous_date, False otherwise.
+    :return: True if checked_at is the next day as previous_date,
+    False otherwise.
     """
     if checked_at == previous_date + datetime.timedelta(days=1):
         return True
@@ -188,7 +188,7 @@ def is_next_week(checked_at, previous_date):
     year1, week1, _ = previous_date.isocalendar()
     year2, week2, _ = checked_at.isocalendar()
 
-    # Get the last ISO week of year1, Dec 28 always last week
+    # Get the last ISO week of year1, 28/12 always last week
     last_week1 = datetime.date(year1, 12, 28).isocalendar()[1]
 
     # Check if date2 is in the next ISO week after date1

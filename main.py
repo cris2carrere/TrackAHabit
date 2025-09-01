@@ -75,6 +75,7 @@ def cli_ui():
 
             habit = Habit(name, description, periodicity)
             habit_created = habit.add_habit(db)
+
             if habit_created:
                 print(habit, "| Created successfully!")
             else:
@@ -100,9 +101,8 @@ def cli_ui():
             questionary.text("Press Enter to continue...", qmark="#").ask()
 
         elif choice == "Check off a Habit":
-            # Get all habits from the database
-
             habits = get_all_habits(db)
+
             if len(habits) == 0:
                 print("\nThere are no habits to check off.\n")
                 questionary.text("Press Enter to continue...", qmark="#").ask()
@@ -114,7 +114,6 @@ def cli_ui():
                 habit.checkoff_habit(db)
 
         elif choice == "List Habits":
-            # Display options for listing habits:
             list_choice = questionary.select(
                 "Please select an option", choices=list_options).ask()
 
@@ -133,7 +132,6 @@ def cli_ui():
                     questionary.text("Press Enter to continue...", qmark="#").ask()  # NOQA: E501
 
             elif list_choice == "View All Habits Same Period":
-                # Select periodicity to filter habits
                 periodicity_choice = questionary.select(
                     "Select a periodicity:", choices=periodicity_options).ask()
 
