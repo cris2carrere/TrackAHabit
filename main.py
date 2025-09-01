@@ -34,18 +34,21 @@ def cli_ui():
         "Exit Application"
     ]
 
+    # Options for periodicity when creating or filtering habits
     periodicity_options = [
         "Daily",
         "Weekly",
         "Monthly"
     ]
 
+    # Options for analyzing habits
     analyze_options = [
         "Longest Streak For All Habits",
         "Longest Run For A Habit",
         "Habit Struggle Analysis"
     ]
 
+    # Options for listing habits
     list_options = [
         "View All Habits",
         "View All Habits Same Period"
