@@ -21,7 +21,7 @@ The application features an interactive command-line interface built with questi
   - Longest streak analysis for individual or all habits
   - Current streak monitoring
   - Habit struggle analysis (missed completions)
-- ✅ **Flexible Scheduling**: Support for daily, weekly, and monthly habit frequencies
+- ✅ **Flexible Periodicity**: Support for daily, weekly, and monthly habit frequencies
 - ✅ **Data Persistence**: SQLite database ensures your progress is never lost
 - ✅ **User-Friendly CLI**: Interactive menu system with questionary
 
@@ -52,6 +52,8 @@ source venv/bin/activate
 
 **3. Install requirements**
 
+After activation of the virtual environment, requirements need to be installed. To install them, run the following command.
+
 ``` shell
 pip install -r requirements.txt
 ```
@@ -65,6 +67,8 @@ python main.py
 ```
 
 ## Tests
+
+Track A Habit includes a module to test the application. In order to test ir, run the following command.
 
 ```shell
 pytest .
